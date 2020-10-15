@@ -1,0 +1,36 @@
+# -*- coding: UTF-8 -*-
+"""
+AUTHOR:   MIAN
+DATE:     2020/10/15
+DESCRIBE: 基础设备
+"""
+from typing import *
+
+import config
+
+
+def get_file() -> str:
+    """根据不同的系统，进行不同操作，返回路径
+:return: 返回选中的文件路径
+    """
+    if config.env == config.System.WIN:
+        import win32ui
+        import win32con
+        dlg = win32ui.CreateFileDialog(1, None, None, win32con.OFN_OVERWRITEPROMPT,
+                                       "Text Files (*.txt)|*.txt||")  # 1表示打开文件对话框
+        dlg.SetOFNInitialDir("")  # 设置打开文件对话框中的初始显示目录
+        dlg.DoModal()
+        return dlg.GetPathName()  # 获取选择的文件名称
+    if config.env == config.System.LINUX:
+        return input("请输入地址:")
+
+
+def newline() -> str:
+    """生成不同系统对应的换行符
+:return: 返回换行符
+    """
+    return {config.System.WIN: "\r\n", config.System.LINUX: "\n"}[config.env]
+
+
+if __name__ == '__main__':
+    print(get_file())
