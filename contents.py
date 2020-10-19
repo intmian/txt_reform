@@ -169,6 +169,7 @@ class Chapter(Content):
         """
         将后面的正文节点全部折叠进此章节点内
         """
+        # 将所有的子成员脱链后放进child数组
         super().reform()
         p = self.next
         while p is not None:
@@ -210,6 +211,7 @@ class Volume(Content):
             # 预先添加
 
     def reform(self):
+        # 将所有的子成员脱链后放进child数组
         super().reform()
         p = self.next
         while p is not None:
@@ -219,7 +221,9 @@ class Volume(Content):
             elif type(p) is Volume:
                 break
             elif type(p) is Text:
+                p.reform()
                 self.child.append(p)
+                p.delete()
                 # 仅仅当出现在本卷第一章前作为卷语可以
             elif type(p) is Enter:
                 if config.delete_enter:

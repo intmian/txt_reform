@@ -57,11 +57,15 @@ class Reader:
                 # todo：处理中文数字放在章节名里的
                 if re.match("(第)? *0*[0-9]+ *章 *.*", t):
                     name = t[t.rfind("章"):].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
+                    if name == "章":  # 这个和上面的做法合并才能搞出正确的结果
+                        name = ""
                     yield contents.Chapter(int(re.findall(r'\d+', t)[0]), name)
                     temp = ""
                     continue
                 elif re.match("(第)? *0*[0-9]+ *卷 *.*", t):
                     name = t[t.rfind("卷"):].strip()
+                    if name == "卷":
+                        name = ""
                     yield contents.Volume(int(re.findall(r'\d+', t)[0]), name)
                     temp = ""
                     continue
