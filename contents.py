@@ -184,7 +184,10 @@ class Chapter(Content):
             p = p.next()
 
     def output(self) -> str:
-        r =
+        r = self.text
+        for c in self.child:
+            r += c.output()
+        return r
 
 
 class Volume(Content):
@@ -194,6 +197,7 @@ class Volume(Content):
         self.text = "第{}卷".format(n)
         if name != "":
             self.text += " " + name
+        self.text += tool.newline()
         self.child = []
         for i in range(config.volume_enter):
             self.child.append(Enter())
@@ -218,6 +222,12 @@ class Volume(Content):
                     self.child.append(p)
                     p.reform()
             p = p.next()
+
+    def output(self) -> str:
+        r = self.text
+        for c in self.child:
+            r += c.output()
+        return r
 
 
 class Contents:
@@ -324,3 +334,9 @@ class Contents:
                 else:
                     if config.debug:
                         print("第", c.num, "卷重复已被删除")
+
+    def output(self) -> str:
+        r = ""
+        for c in self.child:
+            r += c.output()
+        return r
