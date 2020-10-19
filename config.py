@@ -21,3 +21,5 @@ volume_enter = 1  # 卷后添加几个空行
 text_enter = 1  # 段后额外添加几个空行
 debug = True
 over = False  # 是否覆盖原文件
+read_code = "utf-8"  # 源文件编码
+write_code = "utf-8"  # reform后编码
