@@ -47,17 +47,17 @@ class Content(ABC):
         """
         Content.Num -= 1
         if self.last is None:
-            self.next = None
             Content.head = None
             # 头节点，函数链需特别注意
         elif self.next is None:
-            self.last = None
+            self.last.next = None
+            # self.last = None  不必进行这一步，不清空可以让迭代器不失效
             # 尾节点
         else:
             self.last.next = self.next
             self.next.last = self.last
-            self.next = None
-            self.last = None
+            # self.next = None
+            # self.last = None
 
     def swap(self, node):
         """与某点
@@ -156,6 +156,7 @@ class Chapter(Content):
     def __init__(self, n: int, name: str):
         super().__init__()
         self.text = "第{}章".format(n)
+        self.num = n  # 用来作比较的，留着
         if name != "":
             self.text += " " + name
         self.text += tool.newline()
@@ -171,15 +172,15 @@ class Chapter(Content):
         super().reform()
         p = self.next
         while p is not None:
-            if p is Chapter:
+            if type(p) is Chapter:
                 break
-            elif p is Volume:
+            elif type(p) is Volume:
                 break
-            elif p is Text:
+            elif type(p) is Text:
                 p.reform()
                 self.child.append(p)
                 p.delete()
-            elif p is Enter:
+            elif type(p) is Enter:
                 if config.delete_enter:
                     p.delete()  # 重整空行
                 else:
@@ -199,6 +200,7 @@ class Volume(Content):
     def __init__(self, n: int, name: str):
         super().__init__()
         self.text = "第{}卷".format(n)
+        self.num = n  # 用来作比较的，留着
         if name != "":
             self.text += " " + name
         self.text += tool.newline()
@@ -211,15 +213,15 @@ class Volume(Content):
         super().reform()
         p = self.next
         while p is not None:
-            if p is Chapter:
+            if type(p) is Chapter:
                 p.reform()
-            elif p is Volume:
+            elif type(p) is Volume:
                 break
-            elif p is Text:
+            elif type(p) is Text:
                 self.child.append(p)
                 p.delete()
                 # 仅仅当出现在本卷第一章前作为卷语可以
-            elif p is Enter:
+            elif type(p) is Enter:
                 if config.delete_enter:
                     p.delete()  # 重整空行
                 else:
@@ -245,16 +247,18 @@ class Contents:
         self.last = Content.Head
         self.reader = reader.Reader(addr)
         self.child = []
-        no_chap = False
-        no_volume = False
+        no_chap = True
+        no_volume = True
         for a in self.reader.gene():
             if a is not None:
+                if self.head is None:
+                    self.head = a
                 a.inject(self.last)
                 self.last = a
-            if a is Chapter:
-                no_chap = True
-            if a is Volume:
-                no_volume = True
+            if type(a) is Chapter:
+                no_chap = False
+            if type(a) is Volume:
+                no_volume = False
 
         # todo：还需要处理空文本或者其他奇形怪状的不规范文本，不过这次算了
         if no_chap:
@@ -276,15 +280,15 @@ class Contents:
         if p is None:
             p = Text("空文本")
         while p is not None:
-            if p is Chapter:
+            if type(p) is Chapter:
                 p.reform()  # todo:这个情况是不可能的，应该抛个错误
-            elif p is Volume:
+            elif type(p) is Volume:
                 p.reform()
                 self.child.append(p)
-            elif p is Text:
+            elif type(p) is Text:
                 p.reform()
                 self.child.append(p)
-            elif p is Enter:
+            elif type(p) is Enter:
                 if config.delete_enter:
                     p.delete()  # 重整空行
                 else:
@@ -294,14 +298,16 @@ class Contents:
 
         def cmp(a, b):
             # 专门为内部排序写的，只考虑可能的情况
-            if a is Text or a is Enter:
+            if type(a) is Text or type(a) is Enter:
+                return False
+            elif type(b) is Text or type(b) is Enter:
                 return True
             elif a.num < b.num:
-                return True
-            return False
+                return False
+            return True
 
         for c in self.child:
-            if c is Volume:
+            if type(p) is Volume:
                 # 每一卷进行卷内排序
                 c.child.sort(key=functools.cmp_to_key(cmp))
         # python3 删除了自定义的比较函数，所以只能这样写...
@@ -311,11 +317,11 @@ class Contents:
         new_child = []
         last_num = -1  # 上一个章节号
         for c in self.child:
-            if c is Text:
+            if type(c) is Text:
                 new_child.append(c)
-            if c is Enter:
+            if type(c) is Enter:
                 new_child.append(c)
-            if c is Volume:
+            if type(c) is Volume:
                 if c.num != last_num:
                     new_child.append(c)
                     last_num = c.num
@@ -324,11 +330,11 @@ class Contents:
                     new_child2 = []
                     last_num_2 = -1  # 上一个章节号
                     for cc in c.child:
-                        if cc is Text:
+                        if type(cc) is Text:
                             new_child2.append(cc)
-                        if cc is Enter:
+                        if type(cc) is Enter:
                             new_child2.append(cc)
-                        if cc is Chapter:
+                        if type(cc) is Chapter:
                             if cc.num != last_num_2:
                                 new_child2.append(cc)
                                 last_num_2 = cc.num
