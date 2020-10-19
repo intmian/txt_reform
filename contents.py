@@ -31,6 +31,10 @@ class Content(ABC):
         """将此节点插入到某点之后
         :param last: 希望被插入的节点
         """
+        if last is None:
+            # 由程序结构决定只有这种可能
+            Content.Head = self
+            return
         t = last.next
         last.next = self
         self.last = last
@@ -181,7 +185,7 @@ class Chapter(Content):
                 else:
                     self.child.append(p)
                     p.reform()
-            p = p.next()
+            p = p.next
 
     def output(self) -> str:
         r = self.text
@@ -221,7 +225,7 @@ class Volume(Content):
                 else:
                     self.child.append(p)
                     p.reform()
-            p = p.next()
+            p = p.next
 
     def output(self) -> str:
         r = self.text
@@ -286,7 +290,7 @@ class Contents:
                 else:
                     p.reform()
                     self.child.append(p)
-            p = p.next()
+            p = p.next
 
         def cmp(a, b):
             # 专门为内部排序写的，只考虑可能的情况
@@ -331,9 +335,11 @@ class Contents:
                             else:
                                 if config.debug:
                                     print("第", cc.num, "章重复已被删除")
+                    c.child = new_child2
                 else:
                     if config.debug:
                         print("第", c.num, "卷重复已被删除")
+        self.child = new_child
 
     def output(self) -> str:
         r = ""
