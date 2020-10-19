@@ -274,8 +274,9 @@ class Contents:
             # 不分卷
             # 就是一段话没有章节划分
             c = Volume(1, "总卷")
-            self.head.inject(c)
+            c.inject(self.head)
             c.swap(self.head)  # 插在最前
+            self.head = c
 
     def reform(self):
         """进行重整

@@ -6,6 +6,8 @@ DESCRIBE: 驱动程序
 """
 import tool, contents, config
 import os
+
+
 def main():
     # 读入
     addr = tool.get_file()
