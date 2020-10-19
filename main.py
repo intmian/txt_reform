@@ -2,5 +2,17 @@
 """
 AUTHOR:   MIAN
 DATE:     2020/10/20
-DESCRIBE: Title
+DESCRIBE: 驱动程序
 """
+import tool, contents
+
+if __name__ == '__main__':
+    # 读入
+    addr = tool.get_file()
+    con = contents.Contents(addr)
+    # 处理
+    con.reform()
+    s = con.output()
+    # 输出
+    with open(addr, "w") as file:
+        file.write(s)
