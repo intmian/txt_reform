@@ -9,6 +9,7 @@ import config
 import tool
 import re
 
+
 # 记录一个非常奇怪的现象我写from contents import * 程序就报错说类未定义，令人不解
 # 可能是因为contents还没完整跑完一遍就跳到这了，其实我也不清楚
 
@@ -56,14 +57,16 @@ class Reader:
                         continue
                 # todo：处理中文数字放在章节名里的
                 if re.match(" *(第)? *0*[0-9]+ *章 *.*", t):
-                    name = t[t.rfind("章"):].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
+                    t.strip()
+                    name = t[t.find("章")+1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
                     if name == "章":  # 这个和上面的做法合并才能搞出正确的结果
                         name = ""
                     yield contents.Chapter(int(re.findall(r'\d+', t)[0]), name)
                     temp = ""
                     continue
                 elif re.match(" *(第)? *0*[0-9]+ *卷 *.*", t):
-                    name = t[t.rfind("卷"):].strip()
+                    t.strip()
+                    name = t[t.find("卷")+1:].strip()
                     if name == "卷":
                         name = ""
                     yield contents.Volume(int(re.findall(r'\d+', t)[0]), name)
