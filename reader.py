@@ -52,12 +52,14 @@ class Reader:
                     else:
                         continue
 
-                if re.match("(第)? *0*[0-9]+ *章", t):
-                    yield Chapter(int(re.findall(r'\d+', t)[0]))
+                if re.match("(第)? *0*[0-9]+ *章 *.*", t):
+                    name = t[t.rfind("章"):].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
+                    yield Chapter(int(re.findall(r'\d+', t)[0]), name)
                     temp = ""
                     continue
-                elif re.match("(第)? *0*[0-9]+ *卷", t):
-                    yield Volume(int(re.findall(r'\d+', t)[0]))
+                elif re.match("(第)? *0*[0-9]+ *卷 *.*", t):
+                    name = t[t.rfind("卷"):].strip()
+                    yield Volume(int(re.findall(r'\d+', t)[0]), name)
                     temp = ""
                     continue
                 else:

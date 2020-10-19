@@ -4,10 +4,12 @@ AUTHOR:   MIAN
 DATE:     2020/10/15
 DESCRIBE: 用来存放数据的contents
 """
+import functools
 from abc import *
 from typing import *
 import tool
 import reader
+import config
 
 
 class Content(ABC):
@@ -29,8 +31,12 @@ class Content(ABC):
         """将此节点插入到某点之后
         :param last: 希望被插入的节点
         """
+        t = last.next
         last.next = self
         self.last = last
+        self.next = t
+        if t is not None:
+            t.last = self
 
     def delete(self):
         """将自己从链表中脱链
@@ -100,7 +106,13 @@ class Content(ABC):
     def reform(self):
         """将自身格式化
         """
-        pass
+        self.reformed = True
+
+    @abstractmethod
+    def output(self) -> str:
+        """输出内容
+        """
+        return self.text
 
 
 class Text(Content):
@@ -115,6 +127,11 @@ class Text(Content):
         self.text = self.text.strip()
         # 补空格
         self.text = tool.space_para() + self.text + tool.newline()
+        for i in range(config.text_enter):
+            self.text += tool.newline()
+
+    def output(self) -> str:
+        return self.text
 
 
 class Enter(Content):
@@ -126,27 +143,81 @@ class Enter(Content):
     def reform(self):
         super().reform()
 
+    def output(self) -> str:
+        return self.text
+
 
 class Chapter(Content):
     # 第？章
-    def __init__(self, n: int):
+    def __init__(self, n: int, name: str):
         super().__init__()
         self.text = "第{}章".format(n)
-        self.reform()
+        if name != "":
+            self.text += " " + name
+        self.text += tool.newline()
+        self.child = []
+        for i in range(config.chapter_enter):
+            self.child.append(Enter())
+            # 预先添加
 
     def reform(self):
+        """
+        将后面的正文节点全部折叠进此章节点内
+        """
         super().reform()
+        p = self.next
+        while p is not None:
+            if p is Chapter:
+                break
+            elif p is Volume:
+                break
+            elif p is Text:
+                p.reform()
+                self.child.append(p)
+                p.delete()
+            elif p is Enter:
+                if config.delete_enter:
+                    p.delete()  # 重整空行
+                else:
+                    self.child.append(p)
+                    p.reform()
+            p = p.next()
+
+    def output(self) -> str:
+        r =
 
 
 class Volume(Content):
     # 第？卷
-    def __init__(self, n: int):
+    def __init__(self, n: int, name: str):
         super().__init__()
         self.text = "第{}卷".format(n)
-        self.reform()
+        if name != "":
+            self.text += " " + name
+        self.child = []
+        for i in range(config.volume_enter):
+            self.child.append(Enter())
+            # 预先添加
 
     def reform(self):
         super().reform()
+        p = self.next
+        while p is not None:
+            if p is Chapter:
+                p.reform()
+            elif p is Volume:
+                break
+            elif p is Text:
+                self.child.append(p)
+                p.delete()
+                # 仅仅当出现在本卷第一章前作为卷语可以
+            elif p is Enter:
+                if config.delete_enter:
+                    p.delete()  # 重整空行
+                else:
+                    self.child.append(p)
+                    p.reform()
+            p = p.next()
 
 
 class Contents:
@@ -158,4 +229,98 @@ class Contents:
         # 首尾指针
         self.head = Content.Head
         self.last = Content.Head
-        self.reader = reader.Reader
+        self.reader = reader.Reader(addr)
+        self.child = []
+        no_chap = False
+        no_volume = False
+        for a in self.reader.gene():
+            if a is not None:
+                a.inject(self.last)
+                self.last = a
+            if a is Chapter:
+                no_chap = True
+            if a is Volume:
+                no_volume = True
+
+        # todo：还需要处理空文本或者其他奇形怪状的不规范文本，不过这次算了
+        if no_chap:
+            # 就是一段话没有章节划分
+            c = Chapter(1, "总章")
+            self.head.inject(c)
+            c.swap(self.head)  # 插在最前
+        if no_volume:
+            # 不分卷
+            # 就是一段话没有章节划分
+            c = Volume(1, "总卷")
+            self.head.inject(c)
+            c.swap(self.head)  # 插在最前
+
+    def reform(self):
+        """进行重整
+        """
+        p = self.head
+        if p is None:
+            p = Text("空文本")
+        while p is not None:
+            if p is Chapter:
+                p.reform()  # todo:这个情况是不可能的，应该抛个错误
+            elif p is Volume:
+                p.reform()
+                self.child.append(p)
+            elif p is Text:
+                p.reform()
+                self.child.append(p)
+            elif p is Enter:
+                if config.delete_enter:
+                    p.delete()  # 重整空行
+                else:
+                    p.reform()
+                    self.child.append(p)
+            p = p.next()
+
+        def cmp(a, b):
+            # 专门为内部排序写的，只考虑可能的情况
+            if a is Text or a is Enter:
+                return True
+            elif a.num < b.num:
+                return True
+            return False
+
+        for c in self.child:
+            if c is Volume:
+                # 每一卷进行卷内排序
+                c.child.sort(key=functools.cmp_to_key(cmp))
+        # python3 删除了自定义的比较函数，所以只能这样写...
+        self.child.sort(key=functools.cmp_to_key(cmp))
+
+        # 删除重复卷
+        new_child = []
+        last_num = -1  # 上一个章节号
+        for c in self.child:
+            if c is Text:
+                new_child.append(c)
+            if c is Enter:
+                new_child.append(c)
+            if c is Volume:
+                if c.num != last_num:
+                    new_child.append(c)
+                    last_num = c.num
+
+                    # 删除重复章
+                    new_child2 = []
+                    last_num_2 = -1  # 上一个章节号
+                    for cc in c.child:
+                        if cc is Text:
+                            new_child2.append(cc)
+                        if cc is Enter:
+                            new_child2.append(cc)
+                        if cc is Chapter:
+                            if cc.num != last_num_2:
+                                new_child2.append(cc)
+                                last_num_2 = cc.num
+                            else:
+                                if config.debug:
+                                    print("第", cc.num, "章重复已被删除")
+                else:
+                    if config.debug:
+                        print("第", c.num, "卷重复已被删除")
