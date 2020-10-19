@@ -19,5 +19,5 @@ if __name__ == '__main__':
     (filename, extension) = os.path.splitext(temp_filename)
     if not config.over:
         addr = filepath + "/" + filename + "_修改后" + extension
-    with open(addr, "w") as file:
+    with open(addr, "w", encoding="utf-8") as file:
         file.write(s)

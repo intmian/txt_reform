@@ -300,22 +300,20 @@ class Contents:
                     self.child.append(p)
             p = p.next
 
-        def cmp(a, b):
-            # 专门为内部排序写的，只考虑可能的情况
+        # 排序必须是稳定的，不然卷前语和书前语顺序可能改变
+        def key(a):
+            # 专门为内部排序写的，只考虑可能的情况.所有非段卷只可能在最前面，保持不变
             if type(a) is Text or type(a) is Enter:
-                return False
-            elif type(b) is Text or type(b) is Enter:
-                return True
-            elif a.num < b.num:
-                return False
-            return True
+                return 0
+            else:
+                return a.num
 
         for c in self.child:
-            if type(p) is Volume:
+            if type(c) is Volume:
                 # 每一卷进行卷内排序
-                c.child.sort(key=functools.cmp_to_key(cmp))
+                c.child.sort(key=key)
         # python3 删除了自定义的比较函数，所以只能这样写...
-        self.child.sort(key=functools.cmp_to_key(cmp))
+        self.child.sort(key=key)
 
         # 删除重复卷
         new_child = []
