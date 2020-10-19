@@ -215,11 +215,11 @@ class Volume(Content):
         while p is not None:
             if type(p) is Chapter:
                 p.reform()
+                self.child.append(p)
             elif type(p) is Volume:
                 break
             elif type(p) is Text:
                 self.child.append(p)
-                p.delete()
                 # 仅仅当出现在本卷第一章前作为卷语可以
             elif type(p) is Enter:
                 if config.delete_enter:

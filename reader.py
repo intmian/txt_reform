@@ -30,6 +30,7 @@ class Reader:
         """
 返回Content迭代器，如果为空则返回None
         """
+        # todo:未考虑到第一卷这样的词在原文章节中作为单独一行出现而非爬虫自动生成的情况
         text = self.f.read()
         temp = ""
         for c in text:
