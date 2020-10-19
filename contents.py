@@ -2,11 +2,11 @@
 """
 AUTHOR:   MIAN
 DATE:     2020/10/15
-DESCRIBE: 用来存放数据的contesnts
+DESCRIBE: 用来存放数据的contents
 """
 from abc import *
 from typing import *
-
+import tool
 
 class Content(ABC):
     # 接口，为方便使用以链表形式组织
@@ -18,9 +18,10 @@ class Content(ABC):
         Content.Num += 1
         self.last = None
         self.next = None
-        self.text = None
         self.reformed = False
-        Content.Head = self
+        self.text = None
+        if Content.Head is not None:
+            Content.Head = self
 
     def inject(self, last: object):
         """将此节点插入到某点之后
@@ -67,9 +68,19 @@ class Content(ABC):
         sn = self.next
         nl = node.last
         nn = node.next
+
         if self.next == node:
             # 相邻
-            # todo
+            if sl is not None:
+                sl.next = node
+            node.next = self
+            self.next = nn
+            if nn is not None:
+                nn.last = self
+            self.last = node
+            node.last = sl
+            return
+
         node.next = sn
         node.last = sl
         self.last = nl
@@ -89,3 +100,49 @@ class Content(ABC):
         """将自身格式化
         """
         pass
+
+class Text(Content):
+    # 单行文本
+    def __init__(self, text: str):
+        super().__init__()
+        self.text = text
+
+    def reform(self):
+        super().reform()
+        # 去除首位的空格
+        self.text = self.text.strip()
+        # 补空格
+        self.text = tool.space_para() + self.text
+
+class Enter(Content):
+    # 空行
+    def __init__(self, text: str):
+        super().__init__()
+        self.text = tool.newline()
+
+    def reform(self):
+        super().reform()
+
+
+class Chapter(Content):
+    # 第？章
+    def __init__(self, n:int):
+        super().__init__()
+        self.text = "第{}章".format(n)
+        self.reform()
+
+    def reform(self):
+        super().reform()
+
+class Volume(Content):
+    # 第？卷
+    def __init__(self, n:int):
+        super().__init__()
+        self.text = "第{}卷".format(n)
+        self.reform()
+
+    def reform(self):
+        super().reform()
+
+class Contents:
+    def __init__(self):

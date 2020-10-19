@@ -32,5 +32,13 @@ def newline() -> str:
     return {config.System.WIN: "\r\n", config.System.LINUX: "\n"}[config.env]
 
 
+def space_para() ->str:
+    """
+:return: 返回段首空格
+    """
+    # 所谓中文空格就是全角空格
+    return config.para_space * " " + config.para_chi_space * "　"
+
+
 if __name__ == '__main__':
     print(get_file())
