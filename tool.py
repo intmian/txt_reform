@@ -29,10 +29,10 @@ def newline() -> str:
     """生成不同系统对应的换行符
 :return: 返回换行符
     """
-    return {config.System.WIN: "\r\n", config.System.LINUX: "\n"}[config.env]
+    return {config.System.WIN: "\n", config.System.LINUX: "\n"}[config.env]
 
 
-def space_para() ->str:
+def space_para() -> str:
     """
 :return: 返回段首空格
     """

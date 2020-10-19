@@ -7,6 +7,8 @@ DESCRIBE: 用来存放数据的contents
 from abc import *
 from typing import *
 import tool
+import reader
+
 
 class Content(ABC):
     # 接口，为方便使用以链表形式组织
@@ -54,7 +56,7 @@ class Content(ABC):
         if self == node:
             return
         if node.next == self:
-            #减少需要处理的情况
+            # 减少需要处理的情况
             node.swap(self)
             return
 
@@ -62,7 +64,6 @@ class Content(ABC):
             Content.Head = node
         elif node == Content.Head:
             Content.Head = self
-
 
         sl = self.last
         sn = self.next
@@ -101,6 +102,7 @@ class Content(ABC):
         """
         pass
 
+
 class Text(Content):
     # 单行文本
     def __init__(self, text: str):
@@ -112,11 +114,12 @@ class Text(Content):
         # 去除首位的空格
         self.text = self.text.strip()
         # 补空格
-        self.text = tool.space_para() + self.text
+        self.text = tool.space_para() + self.text + tool.newline()
+
 
 class Enter(Content):
     # 空行
-    def __init__(self, text: str):
+    def __init__(self):
         super().__init__()
         self.text = tool.newline()
 
@@ -126,7 +129,7 @@ class Enter(Content):
 
 class Chapter(Content):
     # 第？章
-    def __init__(self, n:int):
+    def __init__(self, n: int):
         super().__init__()
         self.text = "第{}章".format(n)
         self.reform()
@@ -134,9 +137,10 @@ class Chapter(Content):
     def reform(self):
         super().reform()
 
+
 class Volume(Content):
     # 第？卷
-    def __init__(self, n:int):
+    def __init__(self, n: int):
         super().__init__()
         self.text = "第{}卷".format(n)
         self.reform()
@@ -144,5 +148,14 @@ class Volume(Content):
     def reform(self):
         super().reform()
 
+
 class Contents:
-    def __init__(self):
+    # 容纳所有content
+    def __init__(self, addr: str):
+        """
+        :param addr:需要被格式化的字符串地址
+        """
+        # 首尾指针
+        self.head = Content.Head
+        self.last = Content.Head
+        self.reader = reader.Reader
