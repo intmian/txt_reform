@@ -15,6 +15,7 @@ def main():
         return
     con = contents.Contents(addr)
     # 处理
+    tool.debug_list(con.head)
     con.reform()
     s = con.output()
     # 输出

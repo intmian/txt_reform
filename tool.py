@@ -7,6 +7,7 @@ DESCRIBE: 基础设备
 from typing import *
 
 import config
+import contents
 
 
 def get_file() -> str:
@@ -38,6 +39,23 @@ def space_para() -> str:
     """
     # 所谓中文空格就是全角空格
     return config.para_space * " " + config.para_chi_space * "　"
+
+
+def debug_list(head):
+    """
+    打印链表
+    """
+    p = head
+    while p is not None:
+        if type(p) is contents.Chapter:
+            print("章 ", p.num)
+        elif type(p) is contents.Volume:
+            print("卷 ", p.num)
+        elif type(p) is contents.Text:
+            pass
+        elif type(p) is contents.Enter:
+            pass
+        p = p.next
 
 
 if __name__ == '__main__':

@@ -315,7 +315,7 @@ class Contents:
                 c.child.sort(key=key)
         # python3 删除了自定义的比较函数，所以只能这样写...
         self.child.sort(key=key)
-
+        # todo: 有时reform排序和去重会导致堆栈错误导致整个块偏移到别的地方
         # 删除重复卷
         new_child = []
         last_num = -1  # 上一个章节号
@@ -328,7 +328,7 @@ class Contents:
                 if c.num != last_num:
                     new_child.append(c)
                     last_num = c.num
-
+                    # todo： 优化重复章删除，优先删除空章，而非删除除第一个的
                     # 删除重复章
                     new_child2 = []
                     last_num_2 = -1  # 上一个章节号
