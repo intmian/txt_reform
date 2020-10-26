@@ -268,8 +268,9 @@ class Contents:
         if no_chap:
             # 就是一段话没有章节划分
             c = Chapter(1, "总章")
-            self.head.inject(c)
+            c.inject(self.head)
             c.swap(self.head)  # 插在最前
+            self.head = c
         if no_volume:
             # 不分卷
             # 就是一段话没有章节划分
