@@ -55,7 +55,6 @@ class Reader:
                         t = temp[:-1]
                     else:
                         continue
-                # todo：处理中文数字放在章节名里的
                 # todo:对于以下情况的优化
                 """
                 第1章~第2章
@@ -69,17 +68,43 @@ class Reader:
                 第二章
                 。。。
                 """
-                if re.match(" *(第)? *0*[0-9]+ *章 *.*", t):
+                if re.match(" *(第)? *0*[0-9０-９一二三四五六七八九十百千万]+ *章 *.*", t):
                     t.strip()
-                    name = t[t.find("章")+1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
+                    name = t[t.find("章") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
                     if name == "章":  # 这个和上面的做法合并才能搞出正确的结果
                         name = ""
-                    yield contents.Chapter(int(re.findall(r'\d+', t)[0]), name)
+                    num = re.findall("[0-9０-９一二三四五六七八九十百千万]+", t)[0]
+                    # 转换为阿拉伯
+                    if num == "十":
+                        num = "10"
+                    elif num[0] == "十":
+                        num = "1" + num
+                    elif num[-1] == "十":
+                        num += "0"
+                    elif num[-1] == "百":
+                        num += "00"
+                    elif num[-1] == "千":
+                        num += "000"
+                    elif num[-1] == "万":
+                        num += "0000"
+                    s = ""
+                    n = {"１": "1", "２": "2", "３": "3", "４": "4", "５": "5", "６": "6", "７": "7", "８": "8", "９": "9",
+                         "０": "0",
+                         "一": "1", "二": "2", "三": "3", "四": "4", "五": "5", "六": "6", "七": "7", "八": "8", "九": "9",
+                         "零": "0",
+                         "十": "", "百": "", "千": "", "万": ""}
+                    for c in num:
+                        if c in n:
+                            s = s + n[c]
+                        else:
+                            s += c
+
+                    yield contents.Chapter(int(s), name)
                     temp = ""
                     continue
                 elif re.match(" *(第)? *0*[0-9]+ *卷 *.*", t):
                     t.strip()
-                    name = t[t.find("卷")+1:].strip()
+                    name = t[t.find("卷") + 1:].strip()
                     if name == "卷":
                         name = ""
                     yield contents.Volume(int(re.findall(r'\d+', t)[0]), name)
