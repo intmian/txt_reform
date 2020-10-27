@@ -111,11 +111,11 @@ class Reader:
                     yield contents.Chapter(int(s), name)
                     temp = ""
                     continue
-                elif re.match(" *(第)? *0*[0-9０-９一二三四五六七八九十百千万]+ *卷 *.*", t):
+                elif re.match(" *第 *0*[0-9０-９一二三四五六七八九十百千万]+ *卷 *.*", t):
                     t.strip()
                     # 取出正确的章节名
                     name = ""
-                    if re.match(" *(第)? *0*[0-9０-９一二三四五六七八九十百千万]+ *卷 *.*", t):
+                    if re.match(" *第 *0*[0-9０-９一二三四五六七八九十百千万]+ *卷 *.*", t):
                         name = t[t.find("章") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
                         if name == "章":  # 这个和上面的做法合并才能搞出正确的结果
                             name = ""
@@ -145,7 +145,7 @@ class Reader:
                         else:
                             s += c
 
-                    yield contents.Chapter(int(s), name)
+                    yield contents.Volume(int(s), name)
                     temp = ""
                     continue
                 else:
