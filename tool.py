@@ -58,5 +58,17 @@ def debug_list(head):
         p = p.next
 
 
+def all_do_list(head, func):
+    """
+对于每一个链表中的单元做func，注意：如果对于p点附近的节点做更改可能导致p失效
+    :param head: 头节点
+    :param func: 需要做的事func(p)
+    """
+    p = head
+    while p is not None:
+        func(p)
+    p = p.next
+
+
 if __name__ == '__main__':
     print(get_file())

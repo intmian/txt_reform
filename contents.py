@@ -28,7 +28,8 @@ class Content(ABC):
             Content.Head = self
 
     def inject(self, last: object):
-        """将此节点插入到某点之后
+        """
+        将此节点插入到某点之后
         :param last: 希望被插入的节点
         """
         if last is None:
@@ -274,10 +275,26 @@ class Contents:
         if no_volume:
             # 不分卷
             # 就是一段话没有章节划分
-            c = Volume(1, "总卷")
+            no = 0
+            c = Volume(no, "总卷")
             c.inject(self.head)
             c.swap(self.head)  # 插在最前
+            print("插入隐式卷", no)
             self.head = c
+            last_chap = -1  # 上一章章节号
+
+            p = self.head
+            while p is not None:
+                if type(p) is Chapter:
+                    if p.num == 1 and (last_chap == -1 or last_chap > 5):
+                        # 为了避免重复的第一章或短范围乱章被当成新的卷
+                        no += 1
+                        v = Volume(no, "自动生成卷")
+                        v.inject(p.last)
+                        if config.debug:
+                            print("插入隐式卷", no)
+                    last_chap = p.num
+                p = p.next
 
     def reform(self):
         """进行重整
