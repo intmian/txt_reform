@@ -70,7 +70,10 @@ def debug_list(head):
                 print("  章 ", n, err)
             last_cap = n
         elif type(p) is contents.Volume:
-            print("卷 ", p.num)
+            if last_cap != -1:
+                print("  ...")
+                print("  章 ", last_cap)
+                print("卷 ", p.num)
         elif type(p) is contents.Text:
             pass
         elif type(p) is contents.Enter:
