@@ -9,6 +9,7 @@ import os
 
 
 def main():
+    # 各个阶段也加入打表信息，并与debug分离
     # 读入
     addr = tool.get_file()
     if addr == "":

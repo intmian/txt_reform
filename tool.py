@@ -46,9 +46,29 @@ def debug_list(head):
     打印链表
     """
     p = head
+    last_cap = -1
     while p is not None:
         if type(p) is contents.Chapter:
-            print("章 ", p.num)
+            # 省略中间连续的，更快找出症结
+            # todo: 更加优化，可以找出错误类型（缺章、错章、重复）并打出。可以全部打进列表
+            n = p.num
+            if n == last_cap + 1:
+                pass
+            elif n == 1:
+                print("  章 ", 1)
+            else:
+                print("  ...")
+                print("  章 ", last_cap)
+                err = ""
+                if last_cap == n:
+                    err = "[与上一章重复]"
+                if last_cap < n - 1:
+                    err = "[与上一章不连续，中间缺章]"
+                if last_cap > n:
+                    # 此处不严谨，应该结合下个章节再判断
+                    err = "[与上一章不连续，错章]"
+                print("  章 ", n, err)
+            last_cap = n
         elif type(p) is contents.Volume:
             print("卷 ", p.num)
         elif type(p) is contents.Text:

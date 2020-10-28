@@ -4,7 +4,6 @@ AUTHOR:   MIAN
 DATE:     2020/10/15
 DESCRIBE: 用来存放数据的contents
 """
-import functools
 from abc import *
 from typing import *
 import tool
