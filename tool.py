@@ -74,6 +74,8 @@ def debug_list(head):
                 print("  ...")
                 print("  章 ", last_cap)
                 print("卷 ", p.num)
+            else:
+                print("卷 ", p.num)
         elif type(p) is contents.Text:
             pass
         elif type(p) is contents.Enter:

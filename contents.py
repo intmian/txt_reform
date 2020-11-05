@@ -275,7 +275,7 @@ class Contents:
             # 不分卷
             # 就是一段话没有章节划分
             no = 0
-            c = Volume(no, "总卷")
+            c = Volume(no, "自动生成卷")
             c.inject(self.head)
             c.swap(self.head)  # 插在最前
             print("插入隐式卷", no)
