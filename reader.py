@@ -79,7 +79,7 @@ class Reader:
                 if len(t) <= config.max_chap_len and \
                         re.match(" *(第)? *0*[0-9０-９零一二三四五六七八九十百千万]+ *章 .*", t) or \
                         re.match(" *[0-9０-９零一二三四五六七八九十百千万]+、【.*】*", t) or \
-                        re.match(" *[0-9０-９零一二三四五六七八九十百千万]+章 *", t):
+                        re.match(" *[0-9０-９零一二三四五六七八九十百千万]+章", t):
                     t.strip()
                     # 取出正确的章节名
                     name = ""
@@ -124,7 +124,7 @@ class Reader:
                     continue
                 elif len(t) <= config.max_chap_len and \
                         re.match(" *第 *0*[0-9０-９零一二三四五六七八九十百千万]+ *卷 *.*", t) or \
-                        re.match(" *第[0-9０-９零一二三四五六七八九十百千万]+卷 *", t):
+                        re.match(" *第[0-9０-９零一二三四五六七八九十百千万]+卷", t):
                     t.strip()
                     # 取出正确的章节名
                     name = ""
