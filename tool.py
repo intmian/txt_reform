@@ -47,6 +47,7 @@ def debug_list(head):
     """
     p = head
     last_cap = -1
+    # todo：解决当连续章节出错时显示的问题例如 1 2 2 2 3 or 1 2 5 3
     while p is not None:
         if type(p) is contents.Chapter:
             # 省略中间连续的，更快找出症结
