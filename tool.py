@@ -81,6 +81,8 @@ def debug_list(head):
         elif type(p) is contents.Enter:
             pass
         p = p.next
+    print("  ...")
+    print("  章 ", last_cap)
 
 
 def all_do_list(head, func):
