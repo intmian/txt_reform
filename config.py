@@ -19,7 +19,11 @@ delete_enter = True  # 删除所有空行？（不包括后面的
 chapter_enter = 1  # 章节名后添加几个空行
 volume_enter = 1  # 卷后添加几个空行
 text_enter = 1  # 段后额外添加几个空行
-debug = True
 over = False  # 是否覆盖原文件
 read_code = "utf-8"  # 源文件编码
 write_code = "utf-8"  # reform后编码
+
+max_chap_len = 30  # 最大章节名长度，超过会被当成普通文本，主要还是为了避免有些特殊情况
+max_vol_len = 30
+
+debug = True
