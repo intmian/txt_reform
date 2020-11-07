@@ -8,7 +8,7 @@ from abc import *
 from typing import *
 import tool
 import reader
-import config
+from config_file import config
 
 
 class Content(ABC):

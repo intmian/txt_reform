@@ -5,7 +5,7 @@ DATE:     2020/10/19
 DESCRIBE: 一个用来处理输入流的类
 """
 import contents
-import config
+from config_file import config
 import tool
 import re
 

@@ -4,7 +4,8 @@ AUTHOR:   MIAN
 DATE:     2020/10/20
 DESCRIBE: 驱动程序
 """
-import tool, contents, config
+import tool, contents
+from config_file import config
 import os
 
 

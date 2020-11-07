@@ -4,9 +4,8 @@ AUTHOR:   MIAN
 DATE:     2020/10/15
 DESCRIBE: 基础设备
 """
-from typing import *
 
-import config
+from config_file import config
 import contents
 
 
