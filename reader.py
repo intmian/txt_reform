@@ -38,11 +38,6 @@ class Reader:
             # 注意:用python的r模式读文件时根据系统的区别会用\n代替\n\r
             if c == "\n":
                 temp += c
-                # 整行就是一个换行
-                if temp == tool.newline():
-                    yield contents.Enter()
-                    temp = ""
-                    continue
                 # 将有效内容拿出
                 t = ""
                 if config.env == config.System.WIN:
@@ -58,19 +53,27 @@ class Reader:
                 else:
                     pass
                     # todo:报错，出现了不一样的换行符
-                t.strip()  # 去除首尾空格
+                t = t.strip()  # 去除首尾空格
                 signals = filter.FILTERS.filt(t)
                 ty, num, name = detector.DETECTORS.detect(t)
                 if ty == detector.TYPE.CHAPTER and \
                         filter.SIGNAL.REJECT_CHAP not in signals and \
+                        filter.SIGNAL.REJECT_ALL not in signals and \
                         filter.SIGNAL.REJECT_CL not in signals:
+                    # 章
                     yield contents.Chapter(int(num), name)
                 elif ty == detector.TYPE.VOLUME and \
                         filter.SIGNAL.REJECT_VOL not in signals and \
+                        filter.SIGNAL.REJECT_ALL not in signals and \
                         filter.SIGNAL.REJECT_CL not in signals:
+                    # 卷
                     yield contents.Volume(int(num), name)
-                else:
-                    yield contents.Text(t)
+                elif ty == detector.TYPE.ENTER:
+                    # 空行
+                    yield contents.Enter()
+                elif ty == detector.TYPE.TEXT:
+                    # 段
+                    yield contents.Text(name)
                 temp = ""
                 continue
             else:

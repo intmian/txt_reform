@@ -9,6 +9,8 @@ from abc import *
 from typing import *
 import enum
 
+import tool
+
 
 class TYPE(enum.Enum):
     CHAPTER = 1
@@ -162,12 +164,13 @@ class Detectors:
         :param s: 文本
         :return : (类型，数字（仅对于章卷），内容)
         """
-        if s == "\n":
+        if s == "":
             return TYPE.ENTER, "", ""
         for d in self.detectors:
             b, t = d.detect(s)
             if b:
                 return t, d.num(s), d.name(s)
+        return TYPE.TEXT, "", s
 
 
 DETECTORS = Detectors()
