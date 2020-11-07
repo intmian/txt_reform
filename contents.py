@@ -253,6 +253,7 @@ class Contents:
         self.child = []
         no_chap = True
         no_volume = True
+        tool.ready("生成文本链")
         for a in self.reader.gene():
             if a is not None:
                 if self.head is None:
@@ -263,7 +264,9 @@ class Contents:
                 no_chap = False
             if type(a) is Volume:
                 no_volume = False
+        tool.done()
 
+        tool.ready("插入隐式章卷")
         # todo：还需要处理空文本或者其他奇形怪状的不规范文本，不过这次算了
         if no_chap:
             # 就是一段话没有章节划分
@@ -278,7 +281,8 @@ class Contents:
             c = Volume(no, "自动生成卷")
             c.inject(self.head)
             c.swap(self.head)  # 插在最前
-            print("插入隐式卷", no)
+            if config.debug:
+                print("插入隐式卷", no)
             self.head = c
             last_chap = -1  # 上一章章节号
 
@@ -291,9 +295,11 @@ class Contents:
                         v = Volume(no, "自动生成卷")
                         v.inject(p.last)
                         if config.debug:
-                            print("插入隐式卷", no)
+                            if config.debug:
+                                print("插入隐式卷", no)
                     last_chap = p.num
                 p = p.next
+        tool.done()
 
     def reform(self):
         """进行重整
@@ -301,6 +307,7 @@ class Contents:
         p = self.head
         if p is None:
             p = Text("空文本")
+        tool.ready("对各内容节点进行格式化并归并为连续结构")
         while p is not None:
             if type(p) is Chapter:
                 p.reform()  # todo:这个情况是不可能的，应该抛个错误
@@ -317,6 +324,7 @@ class Contents:
                     p.reform()
                     self.child.append(p)
             p = p.next
+        tool.done()
 
         # 排序必须是稳定的，不然卷前语和书前语顺序可能改变
         def key(a):
@@ -326,13 +334,16 @@ class Contents:
             else:
                 return a.num
 
+        tool.ready("章卷排序")
         for c in self.child:
             if type(c) is Volume:
                 # 每一卷进行卷内排序
                 c.child.sort(key=key)
         # python3 删除了自定义的比较函数，所以只能这样写...
         self.child.sort(key=key)
-        # todo: 有时reform排序和去重会导致堆栈错误导致整个块偏移到别的地方
+        tool.done()
+
+        tool.ready("删除重复章卷")
         # 删除重复卷
         new_child = []
         last_num = -1  # 上一个章节号
@@ -366,6 +377,7 @@ class Contents:
                     if config.debug:
                         print("第", c.num, "卷重复已被删除")
         self.child = new_child
+        tool.done()
 
     def output(self) -> str:
         r = ""

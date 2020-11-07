@@ -24,6 +24,7 @@ class Reader:
         self.addr = file_addr
         # todo: 未来有时间的话这里写一个用chardet判断格式的
         self.f = open(file_addr, 'r', encoding=config.read_code)
+        tool.done()
 
     def __del__(self):
         self.f.close()

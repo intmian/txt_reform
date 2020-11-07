@@ -97,5 +97,13 @@ def all_do_list(head, func):
     p = p.next
 
 
+def ready(s):
+    print(s + "... ")
+
+
+def done():
+    print("done")
+
+
 if __name__ == '__main__':
     print(get_file())
