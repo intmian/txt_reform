@@ -8,6 +8,7 @@ import contents
 from config_file import config
 import tool
 import re
+import filter, detector
 
 
 # 记录一个非常奇怪的现象我写from contents import * 程序就报错说类未定义，令人不解
@@ -31,7 +32,6 @@ class Reader:
         """
 返回Content迭代器，如果为空则返回None
         """
-        # todo:未考虑到第一卷这样的词在原文章节中作为单独一行出现而非爬虫自动生成的情况
         text = self.f.read()
         temp = ""
         for c in text:
@@ -55,124 +55,24 @@ class Reader:
                         t = temp[:-1]
                     else:
                         continue
-                # todo:对于以下情况的优化
-                """
-                第1章~第2章
-                第1章
-                。。。
-                第2章
-                。。。
-                此时处理后会变成
-                第1章 ~第2章
-                
-                第二章
-                。。。
-                """
-                # todo:修复以下情况
-                """
-                有些作者总喜欢写什么卷后感言，包括
-                第x章终于写完了
-                第三章终于写完了这种东西
-                第xxx章被封了这样的东西就会被识别为章节。。。。。
-                所以我默认第x章后面加空格的才是章节名
-                
-                11/5
-                前面强制有第有些章节又识别不出来了。。。
-                又改回去了、、、
-                重构的时候好好改一下
-                """
-                # todo: 可以把下面这里解耦出来，将判别条件、num，name的提取放在一个类里，然后把相似的解耦，最后放在列表里遍历
-                if len(t) <= config.max_chap_len and \
-                        re.match(" *(第)? *0*[0-9０-９零一二三四五六七八九十百千万]+ *章 .*", t) or \
-                        re.match(" *[0-9０-９零一二三四五六七八九十百千万]+、【.*】*", t) or \
-                        re.match(" *(第)?[0-9０-９零一二三四五六七八九十百千万]+章", t):
-                    t.strip()
-                    # 取出正确的章节名
-                    name = ""
-                    if re.match(" *(第)? *0*[0-9０-９零一二三四五六七八九十百千万]+ *章 .*", t):
-                        name = t[t.find("章") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
-                        if name == "章":  # 这个和上面的做法合并才能搞出正确的结果
-                            name = ""
-                    elif re.match(" *[0-9０-９零一二三四五六七八九十百千万]+、【.*】*", t):
-                        name = t[t.find("、") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
-                        if name == "、":  # 这个和上面的做法合并才能搞出正确的结果
-                            name = ""
-                    elif re.match(" *(第)?[0-9０-９零一二三四五六七八九十百千万]+章 *", t):
-                        name = ""
-
-                    num = re.findall("[0-9０-９零一二三四五六七八九十百千万]+", t)[0]
-                    # 转换为阿拉伯
-                    if num == "十":
-                        num = "10"
-                    elif num[0] == "十":
-                        num = "1" + num
-                    elif num[-1] == "十":
-                        num += "0"
-                    elif num[-1] == "百":
-                        num += "00"
-                    elif num[-1] == "千":
-                        num += "000"
-                    elif num[-1] == "万":
-                        num += "0000"
-                    s = ""
-                    n = {"１": "1", "２": "2", "３": "3", "４": "4", "５": "5", "６": "6", "７": "7", "８": "8", "９": "9",
-                         "０": "0",
-                         "一": "1", "二": "2", "三": "3", "四": "4", "五": "5", "六": "6", "七": "7", "八": "8", "九": "9",
-                         "零": "0",
-                         "十": "", "百": "", "千": "", "万": ""}
-                    for c in num:
-                        if c in n:
-                            s = s + n[c]
-                        else:
-                            s += c
-                    yield contents.Chapter(int(s), name)
-                    temp = ""
-                    continue
-                elif len(t) <= config.max_chap_len and \
-                        re.match(" *第 *0*[0-9０-９零一二三四五六七八九十百千万]+ *卷 *.*", t) or \
-                        re.match(" *第[0-9０-９零一二三四五六七八九十百千万]+卷", t):
-                    t.strip()
-                    # 取出正确的章节名
-                    name = ""
-                    if re.match(" *第 *0*[0-9０-９零一二三四五六七八九十百千万]+ *卷 *.*", t):
-                        name = t[t.find("卷") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
-                        if name == "卷":  # 这个和上面的做法合并才能搞出正确的结果
-                            name = ""
-                    elif re.match(" *第[0-9０-９零一二三四五六七八九十百千万]+卷 *", t):
-                        name = ""
-                    num = re.findall("[0-9０-９零一二三四五六七八九十百千万]+", t)[0]
-                    # 转换为阿拉伯
-                    if num == "十":
-                        num = "10"
-                    elif num[0] == "十":
-                        num = "1" + num
-                    elif num[-1] == "十":
-                        num += "0"
-                    elif num[-1] == "百":
-                        num += "00"
-                    elif num[-1] == "千":
-                        num += "000"
-                    elif num[-1] == "万":
-                        num += "0000"
-                    s = ""
-                    n = {"１": "1", "２": "2", "３": "3", "４": "4", "５": "5", "６": "6", "７": "7", "８": "8", "９": "9",
-                         "０": "0",
-                         "一": "1", "二": "2", "三": "3", "四": "4", "五": "5", "六": "6", "七": "7", "八": "8", "九": "9",
-                         "零": "0",
-                         "十": "", "百": "", "千": "", "万": ""}
-                    for c in num:
-                        if c in n:
-                            s = s + n[c]
-                        else:
-                            s += c
-
-                    yield contents.Volume(int(s), name)
-                    temp = ""
-                    continue
+                else:
+                    pass
+                    # todo:报错，出现了不一样的换行符
+                t.strip()  # 去除首尾空格
+                signals = filter.FILTERS.filt(t)
+                ty, num, name = detector.DETECTORS.detect(t)
+                if ty == detector.TYPE.CHAPTER and \
+                        filter.SIGNAL.REJECT_CHAP not in signals and \
+                        filter.SIGNAL.REJECT_CL not in signals:
+                    yield contents.Chapter(int(num), name)
+                elif ty == detector.TYPE.VOLUME and \
+                        filter.SIGNAL.REJECT_VOL not in signals and \
+                        filter.SIGNAL.REJECT_CL not in signals:
+                    yield contents.Volume(int(num), name)
                 else:
                     yield contents.Text(t)
-                    temp = ""
-                    continue
+                temp = ""
+                continue
             else:
                 temp += c
         yield None

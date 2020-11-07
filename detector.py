@@ -167,4 +167,7 @@ class Detectors:
         for d in self.detectors:
             b, t = d.detect(s)
             if b:
-                return t, d.num(s), d.num(s)
+                return t, d.num(s), d.name(s)
+
+
+DETECTORS = Detectors()
