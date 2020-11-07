@@ -32,27 +32,6 @@ class Detector(ABC):
         pass
 
 
-class Detectors:
-    def __init__(self):
-        # 添加新的detectors应在此处配置
-        self.detectors = {
-
-        }
-
-    def detect(self, s: str) -> (TYPE, str, str):
-        """
-将文本解析为具体的content类型，并提取内容
-        :param s: 文本
-        :return : (类型，数字（仅对于章卷），内容)
-        """
-        if s == "\n":
-            return TYPE.ENTER, "", ""
-        for d in self.detectors:
-            b, t = d.detect(s)
-            if b:
-                return t, d.num(s), d.num(s)
-
-
 def uni_get_num(t: str) -> str:
     """
 从t中取出第一个中文或阿拉伯数字
@@ -88,6 +67,7 @@ def uni_get_num(t: str) -> str:
 
 
 class Chap1(Detector):
+    # 第*章 ***
     def detect(self, s) -> (bool, TYPE):
         return re.match(" *(第)? *0*[0-9０-９零一二三四五六七八九十百千万]+ *章 .*", s), TYPE.CHAPTER
 
@@ -102,6 +82,7 @@ class Chap1(Detector):
 
 
 class Chap2(Detector):
+    # *、 ***
     def detect(self, s) -> (bool, TYPE):
         return re.match(" *[0-9０-９零一二三四五六七八九十百千万]+、【.*】*", s), TYPE.CHAPTER
 
@@ -116,6 +97,7 @@ class Chap2(Detector):
 
 
 class Chap3(Detector):
+    # 第*章
     def detect(self, s) -> (bool, TYPE):
         return re.match(" *(第)?[0-9０-９零一二三四五六七八九十百千万]+章", s), TYPE.CHAPTER
 
@@ -124,3 +106,65 @@ class Chap3(Detector):
 
     def name(self, s) -> str:
         return ""
+
+
+class Vol1(Detector):
+    # 第*卷 aaa
+    def detect(self, s) -> (bool, TYPE):
+        return re.match(" *第 *0*[0-9０-９零一二三四五六七八九十百千万]+ *卷 *.*", s), TYPE.VOLUME
+
+    def num(self, s) -> str:
+        return uni_get_num(s)
+
+    def name(self, s) -> str:
+        name = s[s.find("卷") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
+        if name == "卷":  # 这个和上面的做法合并才能搞出正确的结果
+            name = ""
+        return s
+
+
+class Vol2(Detector):
+    # 第*卷
+    def detect(self, s) -> (bool, TYPE):
+        return re.match(" *第[0-9０-９零一二三四五六七八九十百千万]+卷", s), TYPE.VOLUME
+
+    def num(self, s) -> str:
+        return uni_get_num(s)
+
+    def name(self, s) -> str:
+        name = s[s.find("卷") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
+        if name == "卷":  # 这个和上面的做法合并才能搞出正确的结果
+            name = ""
+        return s
+
+
+class Detectors:
+    def __init__(self):
+        # 添加新的detectors应在此处配置
+        t = []
+        from config_file.detect_config import enable
+        if enable["Chap1"]:
+            t.append(Chap1())
+        if enable["Chap2"]:
+            t.append(Chap2())
+        if enable["Chap3"]:
+            t.append(Chap3())
+        if enable["Vol1"]:
+            t.append(Vol1())
+        if enable["Vol2"]:
+            t.append(Vol2())
+
+        self.detectors = t
+
+    def detect(self, s: str) -> (TYPE, str, str):
+        """
+将文本解析为具体的content类型，并提取内容
+        :param s: 文本
+        :return : (类型，数字（仅对于章卷），内容)
+        """
+        if s == "\n":
+            return TYPE.ENTER, "", ""
+        for d in self.detectors:
+            b, t = d.detect(s)
+            if b:
+                return t, d.num(s), d.num(s)

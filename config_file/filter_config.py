@@ -6,5 +6,6 @@ DESCRIBE: 配置
 """
 # 添加新的filter应在此处配置
 enable = {
-
+    "max_chap_len": True,
+    "max_vol_len": True
 }
