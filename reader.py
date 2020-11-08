@@ -75,6 +75,8 @@ class Reader:
                 elif ty == detector.TYPE.TEXT:
                     # 段
                     yield contents.Text(name)
+                else:
+                    yield contents.Text(name)
                 temp = ""
                 continue
             else:

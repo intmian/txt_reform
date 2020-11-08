@@ -49,6 +49,8 @@ class MaxVolLen(Filter):
 class StrictEnd(Filter):
     # 末尾不能为。
     def filt(self, s: str) -> SIGNAL:
+        if s == "":
+            return SIGNAL.OK
         if s[-1] in ["。"]:
             return SIGNAL.REJECT_CV
 

@@ -85,6 +85,64 @@ def debug_list(head):
     print("  章 ", last_cap)
 
 
+def analyse_list(head):
+    """
+    打印链表,并分析错误
+    """
+    node = head
+    nodes = []
+    while node is not None:
+        if type(node) is contents.Chapter:
+            nodes.append((1, node.num))
+        elif type(node) is contents.Volume:
+            nodes.append((2, node.num))
+        node = node.next
+
+    t = []
+    p = 0
+    t2 = []  # 卷前章
+    while p != len(nodes):
+        n = nodes[p]
+        if n[0] == 1:
+            t2.append(n[1])
+            p += 1
+        if n[0] == 2:
+            if len(t2) != 0:
+                t.append(t2)
+            p2 = p + 1
+            t2 = []
+            while p2 != len(nodes):
+                t, n = node[p2]
+                if t == 2:
+                    p = p2
+                    break
+                if t == 1:
+                    t2.append(n)
+                    p2 += 1
+            t.append(t2)
+    if len(t) == 0:
+        t.append(t2)
+    for v in t:
+        min_i = 0
+        max_i = len(v) -1
+        for i in range(v):
+            if min_i < i < max_i:
+                # 上面这个是什么玩意。。。
+                if v[i - 1] + 1 == v[i] and v[i] + 1 == v[i + 1]:
+                    v[i] = -1
+    for v in t:
+        print("卷 ", p.num)
+        for i in range(v):
+
+            chap = v[i]
+            if i == 1:
+                if chap != 1 and chap != 0:
+
+
+
+
+
+
 def all_do_list(head, func):
     """
 对于每一个链表中的单元做func，注意：如果对于p点附近的节点做更改可能导致p失效

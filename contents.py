@@ -325,24 +325,13 @@ class Contents:
                     self.child.append(p)
             p = p.next
         tool.done()
+        self.cv_sort()
+        self.delete_reduplicate()
 
-        # 排序必须是稳定的，不然卷前语和书前语顺序可能改变
-        def key(a):
-            # 专门为内部排序写的，只考虑可能的情况.所有非段卷只可能在最前面，保持不变
-            if type(a) is Text or type(a) is Enter:
-                return 0
-            else:
-                return a.num
-
-        tool.ready("章卷排序")
-        for c in self.child:
-            if type(c) is Volume:
-                # 每一卷进行卷内排序
-                c.child.sort(key=key)
-        # python3 删除了自定义的比较函数，所以只能这样写...
-        self.child.sort(key=key)
-        tool.done()
-
+    def delete_reduplicate(self):
+        """
+递归删除child的重复章卷
+        """
         tool.ready("删除重复章卷")
         # 删除重复卷
         new_child = []
@@ -379,8 +368,31 @@ class Contents:
         self.child = new_child
         tool.done()
 
+    def cv_sort(self):
+        """
+递归排序卷和章
+        """
+
+        # 排序必须是稳定的，不然卷前语和书前语顺序可能改变
+        def key(a):
+            # 专门为内部排序写的，只考虑可能的情况.所有非段卷只可能在最前面，保持不变
+            if type(a) is Text or type(a) is Enter:
+                return 0
+            else:
+                return a.num
+
+        tool.ready("章卷排序")
+        for c in self.child:
+            if type(c) is Volume:
+                # 每一卷进行卷内排序
+                c.child.sort(key=key)
+        # python3 删除了自定义的比较函数，所以只能这样写...
+        self.child.sort(key=key)
+        tool.done()
+
     def output(self) -> str:
         r = ""
         for c in self.child:
             r += c.output()
         return r
+
