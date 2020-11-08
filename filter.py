@@ -15,7 +15,7 @@ class SIGNAL(enum.Enum):
     REJECT_ALL = 1  # 拒绝所有
     REJECT_CHAP = 2  # 拒绝章
     REJECT_VOL = 3  # 拒绝卷
-    REJECT_CL = 4  # 拒绝章卷
+    REJECT_CV = 4  # 拒绝章卷
     REJECT_TEXT = 5  # 拒绝正文
     REJECT_ENTER = 6  # 拒绝空行
     REJECT_TE = 7  # 拒绝正文空行
@@ -46,6 +46,13 @@ class MaxVolLen(Filter):
             return SIGNAL.OK
 
 
+class StrictEnd(Filter):
+    # 末尾不能为。
+    def filt(self, s: str) -> SIGNAL:
+        if s[-1] in ["。"]:
+            return SIGNAL.REJECT_CV
+
+
 class Filters:
     def __init__(self):
         from config_file.filter_config import enable
@@ -55,6 +62,8 @@ class Filters:
             t.append(MaxChapLen())
         if enable["max_vol_len"]:
             t.append(MaxVolLen())
+        if enable["strict_end"]:
+            t.append(StrictEnd())
         self.filters = t
 
     def filt(self, s: str) -> []:

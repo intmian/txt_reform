@@ -60,13 +60,13 @@ class Reader:
                 if ty == detector.TYPE.CHAPTER and \
                         filter.SIGNAL.REJECT_CHAP not in signals and \
                         filter.SIGNAL.REJECT_ALL not in signals and \
-                        filter.SIGNAL.REJECT_CL not in signals:
+                        filter.SIGNAL.REJECT_CV not in signals:
                     # 章
                     yield contents.Chapter(int(num), name)
                 elif ty == detector.TYPE.VOLUME and \
                         filter.SIGNAL.REJECT_VOL not in signals and \
                         filter.SIGNAL.REJECT_ALL not in signals and \
-                        filter.SIGNAL.REJECT_CL not in signals:
+                        filter.SIGNAL.REJECT_CV not in signals:
                     # 卷
                     yield contents.Volume(int(num), name)
                 elif ty == detector.TYPE.ENTER:
