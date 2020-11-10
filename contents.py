@@ -193,6 +193,8 @@ class Chapter(Content):
         r = self.text
         for c in self.child:
             r += c.output()
+        if len(r) < 2000:
+            print("第", self.num, "章字数过少,请进行检查")
         return r
 
 
@@ -395,4 +397,3 @@ class Contents:
         for c in self.child:
             r += c.output()
         return r
-

@@ -137,6 +137,7 @@ def analyse_list(head):
             chap = v[i]
             if i == 1:
                 if chap != 1 and chap != 0:
+                    pass
 
 
 
