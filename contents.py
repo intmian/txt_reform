@@ -195,6 +195,7 @@ class Chapter(Content):
             r += c.output()
         if len(r) < 2000:
             print("第", self.num, "章字数过少,请进行检查")
+            # todo: 试图加入第几卷的提示，但是这样做在vol的output里面的话就会导致卷前语消失，还是等到之后解耦为一轮检查吧
         return r
 
 
@@ -237,6 +238,8 @@ class Volume(Content):
 
     def output(self) -> str:
         r = self.text
+        if len(self.child) <= 10:
+            print("第", self.num, "卷章节过少,请进行检查")
         for c in self.child:
             r += c.output()
         return r
