@@ -46,11 +46,10 @@ def debug_list(head):
     """
     p = head
     last_cap = -1
-    # todo：解决当连续章节出错时显示的问题例如 1 2 2 2 3 or 1 2 5 3
+
     while p is not None:
         if type(p) is contents.Chapter:
             # 省略中间连续的，更快找出症结
-            # todo: 更加优化，可以找出错误类型（缺章、错章、重复）并打出。可以全部打进列表
             n = p.num
             if n == last_cap + 1:
                 pass
@@ -85,7 +84,7 @@ def debug_list(head):
     print("  章 ", last_cap)
 
 
-def analyse_list(head):
+def analyse_list(head):  # todo:debug
     """
     打印链表,并分析错误
     """
@@ -98,50 +97,88 @@ def analyse_list(head):
             nodes.append((2, node.num))
         node = node.next
 
-    t = []
+    volumes = []
     p = 0
-    t2 = []  # 卷前章
+    chaps = []  # 卷前章
+    v_nums = []
     while p != len(nodes):
         n = nodes[p]
         if n[0] == 1:
-            t2.append(n[1])
+            chaps.append(n[1])
             p += 1
         if n[0] == 2:
-            if len(t2) != 0:
-                t.append(t2)
+            v_nums.append(n[1])
+            if len(chaps) != 0 and len(volumes) == 0:
+                volumes.append(chaps)
+                # 卷前章
             p2 = p + 1
-            t2 = []
+            chaps = []
             while p2 != len(nodes):
-                t, n = node[p2]
-                if t == 2:
-                    p = p2
+                t1, n1 = nodes[p2]
+                if t1 == 2:
                     break
-                if t == 1:
-                    t2.append(n)
+                if t1 == 1:
+                    chaps.append(n1)
                     p2 += 1
-            t.append(t2)
-    if len(t) == 0:
-        t.append(t2)
-    for v in t:
+            volumes.append(chaps)
+            p = p2
+    if len(volumes) == 0:
+        volumes.append(chaps)  # 当没有章卷结构时
+    for v in volumes:
         min_i = 0
-        max_i = len(v) -1
-        for i in range(v):
+        max_i = len(v) - 1
+        for i in range(len(v)):
             if min_i < i < max_i:
                 # 上面这个是什么玩意。。。
-                if v[i - 1] + 1 == v[i] and v[i] + 1 == v[i + 1]:
+                if (v[i - 1] + 1 == v[i] or v[i-1] == -1) and v[i] + 1 == v[i + 1]:
                     v[i] = -1
-    for v in t:
-        print("卷 ", p.num)
-        for i in range(v):
-
+    for vol_index in range(len(volumes)):
+        v = volumes[vol_index]
+        print("卷", v_nums[vol_index])
+        skip = False
+        for i in range(len(v)):
+            err = ""
             chap = v[i]
-            if i == 1:
+            # 末章单独处理
+            if i == len(v) - 1:
+                print("  章", chap)
+                continue
+            # 第一章
+            if i == 0:
                 if chap != 1 and chap != 0:
-                    pass
+                    err = "[本卷不以第一章开头]"
+                    print("  章", chap, err)
+                    continue
+                else:
+                    print("  章", chap, err)
+                    continue
+            pre = v[i - 1]
+            next_n = v[i + 1]
+            # 选择性打印省略号
+            if chap == -1:
+                if not skip:
+                    print("  ...")
+                    skip = True
+                    continue
+                else:
+                    continue
+            else:
+                skip = False
+            if pre == -1:
+                print("  章", chap, err)
+                continue
+            if v[i - 2] + 1 == chap:
+                continue
 
-
-
-
+            if pre + 2 == next_n:
+                err = "[乱章]"
+            elif pre < chap:
+                err = "[缺章]"
+            elif pre > chap:
+                err = "[错章]"
+            elif pre == chap:
+                err = "[重复]"
+            print("  章", chap, err)
 
 
 def all_do_list(head, func):

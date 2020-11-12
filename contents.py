@@ -193,9 +193,6 @@ class Chapter(Content):
         r = self.text
         for c in self.child:
             r += c.output()
-        if len(r) < 2000:
-            print("第", self.num, "章字数过少,请进行检查")
-            # todo: 试图加入第几卷的提示，但是这样做在vol的output里面的话就会导致卷前语消失，还是等到之后解耦为一轮检查吧
         return r
 
 
@@ -239,9 +236,16 @@ class Volume(Content):
     def output(self) -> str:
         r = self.text
         if len(self.child) <= 10:
+            # 不用考虑吧不在卷内的章的情况
             print("第", self.num, "卷章节过少,请进行检查")
         for c in self.child:
-            r += c.output()
+            t = c.output()
+            if type(c) is Chapter:
+                if len(t) < 2000:
+                    # 因为 章一定在卷内所以字数判断放这里
+                    print("第", self.num, "卷 第", c.num, "章字数过少,请进行检查")
+                    # 这里会出现一个黄色提示，是因为pycharm只识别到我在v里面加了enter，而识别不到reform环节加的其他
+            r += t
         return r
 
 
@@ -365,7 +369,7 @@ class Contents:
                                 last_num_2 = cc.num
                             else:
                                 if config.debug:
-                                    print("第", cc.num, "章重复已被删除")
+                                    print("第", c.num, "卷 第", cc.num, "章重复已被删除")
                     c.child = new_child2
                 else:
                     if config.debug:

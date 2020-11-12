@@ -19,7 +19,7 @@ def main():
     con = contents.Contents(addr)
     # 处理
     tool.ready("文本结构展示")
-    tool.debug_list(con.head)
+    tool.analyse_list(con.head)
     tool.done()
     con.reform()
     tool.ready("重整为单一文本")
