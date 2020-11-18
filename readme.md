@@ -32,7 +32,7 @@
 
 直接运行`python main.py`
 
-或者下载[exe版本](https://github.com/intmian/txt_reform/releases/tag/v1.2.1)，并双击使用
+~或者下载[exe版本](https://github.com/intmian/txt_reform/releases/tag/v1.2.1)，并双击使用~（此版本配置文件被打包编译无法更改，下版本会解耦到json）
 
 ## 注意
 
