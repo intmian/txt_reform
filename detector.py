@@ -122,7 +122,7 @@ class Vol1(Detector):
         name = s[s.find("卷") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
         if name == "卷":  # 这个和上面的做法合并才能搞出正确的结果
             name = ""
-        return s
+        return name
 
 
 class Vol2(Detector):
@@ -137,7 +137,7 @@ class Vol2(Detector):
         name = s[s.find("卷") + 1:].strip()  # 章节名，如果没有就是空字符串构造函数里面有处理
         if name == "卷":  # 这个和上面的做法合并才能搞出正确的结果
             name = ""
-        return s
+        return name
 
 
 class Detectors:
