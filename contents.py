@@ -235,7 +235,7 @@ class Volume(Content):
 
     def output(self) -> str:
         r = self.text
-        if len(self.child) <= 10:
+        if len(self.child) <= 10 and self.text != "第0卷 书前语\n":
             # 不用考虑吧不在卷内的章的情况
             print("第", self.num, "卷章节过少,请进行检查")
         for c in self.child:
@@ -276,7 +276,6 @@ class Contents:
         tool.done()
 
         tool.ready("插入隐式章卷")
-        # todo：还需要处理空文本或者其他奇形怪状的不规范文本，不过这次算了
         if no_chap:
             # 就是一段话没有章节划分
             c = Chapter(1, "总章")
@@ -285,13 +284,23 @@ class Contents:
             self.head = c
         if no_volume:
             # 不分卷
-            # 就是一段话没有章节划分
-            no = 0
-            c = Volume(no, "自动生成卷")
+            no = None
+            c = None
+            if type(self.head) is not Chapter:
+                # 需要插入卷前语的时候
+
+                no = 0
+                c = Volume(no, "书前语")
+                if config.debug:
+                    print("插入隐式书前语")
+            else:
+                no = 1
+                c = Volume(no, "自动生成卷")
+                if config.debug:
+                    print("插入隐式卷", no)
+
             c.inject(self.head)
             c.swap(self.head)  # 插在最前
-            if config.debug:
-                print("插入隐式卷", no)
             self.head = c
             last_chap = -1  # 上一章章节号
 
@@ -304,10 +313,20 @@ class Contents:
                         v = Volume(no, "自动生成卷")
                         v.inject(p.last)
                         if config.debug:
-                            if config.debug:
-                                print("插入隐式卷", no)
+                            print("插入隐式卷", no)
                     last_chap = p.num
                 p = p.next
+        else:
+            # 有卷的时候也需要检查是否需要插入卷首语
+            if type(self.head) is not Chapter:
+                # 需要插入卷前语的时候
+                if config.debug:
+                    print("插入隐式书前语")
+                c = Volume(0, "书前语")  # 对于存在0为卷号的情况会触发问题
+                c.inject(self.head)
+                c.swap(self.head)  # 插在最前
+
+                self.head = c
         tool.done()
 
     def reform(self):
