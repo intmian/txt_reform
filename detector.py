@@ -67,7 +67,8 @@ def uni_get_num(t: str) -> str:
             s += c
     return s
 
-#todo: 看一看有没有比match更好的，其实不需要返回值
+
+# todo: 看一看有没有比match更好的，其实不需要返回值
 class Chap1(Detector):
     # 第*章 ***
     def detect(self, s) -> (bool, TYPE):

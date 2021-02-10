@@ -84,7 +84,7 @@ def debug_list(head):
     print("  章 ", last_cap)
 
 
-def analyse_list(head):  # todo:debug
+def analyse_list(head):
     """
     打印链表,并分析错误
     """

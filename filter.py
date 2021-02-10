@@ -38,7 +38,7 @@ class MaxChapLen(Filter):
 
 
 class MaxVolLen(Filter):
-    # 超过章限长
+    # 超过卷限长
     def filt(self, s: str) -> SIGNAL:
         if len(s) > max_vol_len:
             return SIGNAL.REJECT_VOL
@@ -53,6 +53,7 @@ class StrictEnd(Filter):
             return SIGNAL.OK
         if s[-1] in ["。"]:
             return SIGNAL.REJECT_CV
+        return SIGNAL.OK
 
 
 class Filters:
