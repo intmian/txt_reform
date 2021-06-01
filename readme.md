@@ -24,7 +24,7 @@
 
 任何detector与filter可以识别出章卷结构的小说
 
-可在`config_file/detect_config.py`和`config_file/filter_config.py`
+可在`config_file/detect_config.py`和`config_file/filter_config.py`中自由配置过滤器和嗅探器
 
 ## 如何使用
 
