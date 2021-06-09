@@ -25,19 +25,30 @@ class Reader:
         self.exhausted = False  # 因为new里面有个迭代器可以调用，当一轮跑完时重新跑就返回None
         self.addr = file_addr
 
-        tool.ready("识别格式")
-        # 检验格式
-        f3 = open(file=file_addr, mode='rb')  # 以二进制模式读取文件
-        data = f3.read()  # 获取文件内容
-        f3.close()  # 关闭文件
-        result = chardet.detect(data)
+
 
         if config.read_code != "":
             self.f = open(file_addr, 'r', encoding=config.read_code)
         else:
-            print("  格式为：",result["encoding"])
+            tool.ready("识别格式")
+            # 检验格式
+            f3 = open(file=file_addr, mode='rb')  # 以二进制模式读取文件
+            data = None
+            if config.auto_detect_bytes == 0:
+                data = f3.read()  # 获取文件内容
+            else:
+                data = f3.read(config.auto_detect_bytes)
+            f3.close()  # 关闭文件
+            result = chardet.detect(data)
+            code_type = result["encoding"]
+            print("  格式为：", code_type)
             print("  置信度：", result["confidence"])
-            self.f = open(file_addr, 'r', encoding=result["encoding"])
+            if code_type == "GB2312":
+                # 很奇怪的是识别为GB2312但是并无法完全解码。。。。可能置信度不足100%
+                code_type = "GBK"
+                print("  GB2312默认转为GBK")
+            self.f = open(file_addr, 'r', encoding=code_type)
+            tool.done()
         tool.done()
 
     def __del__(self):
