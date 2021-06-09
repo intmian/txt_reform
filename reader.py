@@ -4,6 +4,8 @@ AUTHOR:   MIAN
 DATE:     2020/10/19
 DESCRIBE: 一个用来处理输入流的类
 """
+import chardet
+
 import contents
 from config_file import config
 import tool
@@ -22,8 +24,21 @@ class Reader:
         """
         self.exhausted = False  # 因为new里面有个迭代器可以调用，当一轮跑完时重新跑就返回None
         self.addr = file_addr
-        # todo: 未来有时间的话这里写一个用chardet判断格式的
-        self.f = open(file_addr, 'r', encoding=config.read_code)
+
+        tool.ready("识别格式")
+        # 检验格式
+        f3 = open(file=file_addr, mode='rb')  # 以二进制模式读取文件
+        data = f3.read()  # 获取文件内容
+        f3.close()  # 关闭文件
+        result = chardet.detect(data)
+        tool.done()
+
+        if config.read_code != "":
+            self.f = open(file_addr, 'r', encoding=config.read_code)
+        else:
+            print("  格式为：",result["encoding"])
+            print("  置信度：", result["confidence"])
+            self.f = open(file_addr, 'r', encoding=result["encoding"])
         tool.done()
 
     def __del__(self):
