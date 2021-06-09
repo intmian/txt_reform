@@ -31,7 +31,6 @@ class Reader:
         data = f3.read()  # 获取文件内容
         f3.close()  # 关闭文件
         result = chardet.detect(data)
-        tool.done()
 
         if config.read_code != "":
             self.f = open(file_addr, 'r', encoding=config.read_code)
