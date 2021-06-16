@@ -209,6 +209,7 @@ class Volume(Content):
         for i in range(config.volume_enter):
             self.child.append(Enter())
             # 预先添加
+        self.chap_num = 0  # TODO:增加更加泛用的统计
 
     def reform(self):
         # 将所有的子成员脱链后放进child数组
@@ -218,13 +219,28 @@ class Volume(Content):
             if type(p) is Chapter:
                 p.reform()
                 self.child.append(p)
+                self.chap_num += 1
             elif type(p) is Volume:
                 break
-            elif type(p) is Text:
-                p.reform()
-                self.child.append(p)
-                p.delete()
-                # 仅仅当出现在本卷第一章前作为卷语可以
+            elif type(p) is Text:  # 仅文字空行被收入列表
+                if self.chap_num == 0:
+                    # TODO: 此处以及其他地方可以确认是否插入卷语与书语作为隐式章节
+
+                    # 卷前语，仅在本卷第一章可能存在
+                    if len(self.child) == config.volume_enter:
+                        # 章节仅存在卷前回车
+                        if config.debug:
+                            print("第", self.num, "卷插入卷前语")
+                        c = Chapter(0, "卷前语")
+                        c.reform()
+                        self.inject(c)
+                        self.child.append(c)
+
+                    p.reform()
+                    self.child.append(p)
+                    p.delete()
+                else:
+                    print("第", self.num, "卷，出现格式化错误，请检查程序")
             elif type(p) is Enter:
                 if config.delete_enter:
                     p.delete()  # 重整空行
@@ -241,7 +257,7 @@ class Volume(Content):
         for c in self.child:
             t = c.output()
             if type(c) is Chapter:
-                if len(t) < 2000:
+                if len(t) < 2000 and c.text != "第0章 卷前语\n":
                     # 因为 章一定在卷内所以字数判断放这里
                     print("第", self.num, "卷 第", c.num, "章字数过少,请进行检查")
                     # 这里会出现一个黄色提示，是因为pycharm只识别到我在v里面加了enter，而识别不到reform环节加的其他
@@ -304,6 +320,7 @@ class Contents:
             self.head = c
             last_chap = -1  # 上一章章节号
 
+            # 扫描以生成隐式张卷
             p = self.head
             while p is not None:
                 if type(p) is Chapter:
@@ -317,12 +334,12 @@ class Contents:
                     last_chap = p.num
                 p = p.next
         else:
-            # 有卷的时候也需要检查是否需要插入卷首语
-            if type(self.head) is not Chapter:
-                # 需要插入卷前语的时候
+            # 有卷的时候也需要检查是否需要插入书首语
+            if type(self.head) is not Volume:
+                # 需要插入书前语的时候
                 if config.debug:
                     print("插入隐式书前语")
-                c = Volume(0, "书前语")  # 对于存在0为卷号的情况会触发问题
+                c = Volume(0, "书前语")  # 对于存在0为卷号的情况会触发问题进行修复（我决定不修复了 TODO：修不修？）
                 c.inject(self.head)
                 c.swap(self.head)  # 插在最前
 
